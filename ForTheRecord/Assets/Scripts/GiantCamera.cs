@@ -12,13 +12,15 @@ namespace CameraCoop
         [SerializeField] private Transform _targetTransform;
         [SerializeField] private float _fovAngle = 55f;
         [SerializeField] private float _maxRange = 7.5f;
-        [SerializeField] private float _minRange = 1.0f;
-        [SerializeField] private LayerMask _obstacleMask = ~0; // Will be set to Obstacle layer or default
+        [SerializeField] private float _minRange = 0.8f;
+        [SerializeField] private LayerMask _obstacleMask = ~0;
 
         [Header("Flash & Recoil")]
         [SerializeField] private Light _flashLight;
         [SerializeField] private Transform _bellowsTransform;
         [SerializeField] private Transform _flashBulbTransform;
+        [SerializeField] private MeshRenderer _flashBulbRenderer;
+        [SerializeField] private float _flashDuration = 0.5f;
 
         [Header("Lens Capture Camera")]
         [SerializeField] private Camera _lensCaptureCamera;
@@ -35,7 +37,12 @@ namespace CameraCoop
         public bool IsBlockedByWall { get; private set; }
         public float CurrentTargetDistance { get; private set; }
         public float CurrentAngleOffset { get; private set; }
+        public PhotoSubject FocusedSubject { get; private set; }
 
+        public bool IsFlashActive => _flashTimer > 0f;
+        public float FlashTimeRemaining => Mathf.Max(0f, _flashTimer);
+
+        private float _flashTimer = 0f;
         private Mesh _frustumMesh;
         private Material _frustumMaterial;
         private Color _colorSearching = new Color(0.9f, 0.86f, 0.78f, 0.28f); // Ivory
@@ -64,6 +71,11 @@ namespace CameraCoop
                 _flashLight.enabled = false;
             }
 
+            if (_flashBulbTransform != null && _flashBulbRenderer == null)
+            {
+                _flashBulbRenderer = _flashBulbTransform.GetComponent<MeshRenderer>();
+            }
+
             SetupRenderTexture();
             SetupFrustumMesh();
         }
@@ -88,7 +100,7 @@ namespace CameraCoop
             if (_lensCaptureCamera != null)
             {
                 _lensCaptureCamera.targetTexture = _photoRenderTexture;
-                _lensCaptureCamera.enabled = false; // Render on demand
+                _lensCaptureCamera.enabled = false;
             }
         }
 
@@ -116,8 +128,50 @@ namespace CameraCoop
 
         private void Update()
         {
+            UpdateFlashState();
             UpdateOpticalEvaluation();
             UpdateFrustumVisuals();
+        }
+
+        public void ActivateFlash()
+        {
+            _flashTimer = _flashDuration;
+
+            if (_flashLight != null)
+            {
+                _flashLight.enabled = true;
+                _flashLight.intensity = 15f;
+            }
+
+            if (_flashBulbRenderer != null && _flashBulbRenderer.material != null)
+            {
+                _flashBulbRenderer.material.color = new Color(1f, 0.95f, 0.6f);
+            }
+
+            if (AudioFeedback.Instance != null)
+            {
+                AudioFeedback.Instance.PlayFlashCharge();
+            }
+        }
+
+        private void UpdateFlashState()
+        {
+            if (_flashTimer > 0f)
+            {
+                _flashTimer -= Time.deltaTime;
+                if (_flashTimer <= 0f)
+                {
+                    _flashTimer = 0f;
+                    if (!_isSnapping && _flashLight != null)
+                    {
+                        _flashLight.enabled = false;
+                    }
+                    if (_flashBulbRenderer != null && _flashBulbRenderer.material != null)
+                    {
+                        _flashBulbRenderer.material.color = new Color(0.8f, 0.8f, 0.8f);
+                    }
+                }
+            }
         }
 
         public void SetTarget(Transform target)
@@ -127,80 +181,223 @@ namespace CameraCoop
 
         public void UpdateOpticalEvaluation()
         {
-            if (_lensTransform == null || _targetTransform == null)
+            if (_lensTransform == null)
             {
                 IsTargetInCone = false;
                 IsLineOfSightClear = false;
                 IsBlockedByWall = false;
+                FocusedSubject = null;
                 return;
             }
 
             Vector3 lensPos = _lensTransform.position;
-            Vector3 targetPos = _targetTransform.position;
-
-            // Project to horizontal plane
-            Vector3 toTarget = targetPos - lensPos;
-            Vector3 flatToTarget = new Vector3(toTarget.x, 0f, toTarget.z);
-            CurrentTargetDistance = flatToTarget.magnitude;
-
             Vector3 flatForward = new Vector3(_lensTransform.forward.x, 0f, _lensTransform.forward.z).normalized;
-            CurrentAngleOffset = Vector3.Angle(flatForward, flatToTarget.normalized);
 
-            // Within FOV cone and distance range?
-            bool inConeAngle = CurrentAngleOffset <= (_fovAngle * 0.5f);
-            bool inRange = CurrentTargetDistance >= _minRange && CurrentTargetDistance <= _maxRange;
+            PhotoSubject bestSubject = null;
+            float bestAngle = float.MaxValue;
+            float bestDist = 0f;
+            bool bestBlocked = false;
 
-            IsTargetInCone = inConeAngle && inRange;
-
-            if (IsTargetInCone)
+            // Search through registered wedding subjects
+            var subjects = PhotoSubject.AllSubjects;
+            if (subjects.Count > 0)
             {
-                // Test line-of-sight with center and lateral rays to target
-                Vector3 targetCenter = targetPos + Vector3.up * 0.8f;
-                Vector3 targetLeft = targetCenter - _targetTransform.right * 0.4f;
-                Vector3 targetRight = targetCenter + _targetTransform.right * 0.4f;
-
-                Vector3[] testPoints = { targetCenter, targetLeft, targetRight };
-                int blockedRays = 0;
-
-                foreach (var pt in testPoints)
+                foreach (var s in subjects)
                 {
-                    Vector3 rayDir = (pt - lensPos).normalized;
-                    float testDist = Vector3.Distance(lensPos, pt);
+                    if (s == null || !s.gameObject.activeInHierarchy) continue;
 
-                    RaycastHit[] hits = Physics.RaycastAll(lensPos, rayDir, testDist);
-                    System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+                    Vector3 targetPos = s.FocusTransform.position;
+                    Vector3 toTarget = targetPos - lensPos;
+                    Vector3 flatToTarget = new Vector3(toTarget.x, 0f, toTarget.z);
+                    float dist = flatToTarget.magnitude;
 
-                    bool hitWall = false;
-                    foreach (var hit in hits)
+                    if (dist < _minRange || dist > _maxRange) continue;
+
+                    float angle = Vector3.Angle(flatForward, flatToTarget.normalized);
+                    if (angle > (_fovAngle * 0.5f)) continue;
+
+                    // Line of sight check
+                    bool blocked = CheckSightlineBlocked(lensPos, targetPos, s.transform);
+
+                    // Pick the most centered target
+                    if (angle < bestAngle)
                     {
-                        if (hit.collider.transform.IsChildOf(transform.root)) continue;
-
-                        if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall") || hit.collider.gameObject.name.Contains("Wall"))
-                        {
-                            hitWall = true;
-                            break;
-                        }
+                        bestAngle = angle;
+                        bestDist = dist;
+                        bestSubject = s;
+                        bestBlocked = blocked;
                     }
+                }
+            }
+            else if (_targetTransform != null)
+            {
+                // Fallback to legacy single target
+                Vector3 targetPos = _targetTransform.position;
+                Vector3 toTarget = targetPos - lensPos;
+                Vector3 flatToTarget = new Vector3(toTarget.x, 0f, toTarget.z);
+                float dist = flatToTarget.magnitude;
+                float angle = Vector3.Angle(flatForward, flatToTarget.normalized);
 
-                    if (hitWall) blockedRays++;
+                if (angle <= (_fovAngle * 0.5f) && dist <= _maxRange)
+                {
+                    bestAngle = angle;
+                    bestDist = dist;
+                    bestBlocked = CheckSightlineBlocked(lensPos, targetPos, _targetTransform);
                 }
+            }
 
-                if (blockedRays >= testPoints.Length)
-                {
-                    IsBlockedByWall = true;
-                    IsLineOfSightClear = false;
-                }
-                else
-                {
-                    IsBlockedByWall = false;
-                    IsLineOfSightClear = true;
-                }
+            FocusedSubject = bestSubject;
+            if (bestSubject != null || (subjects.Count == 0 && _targetTransform != null && bestAngle <= _fovAngle * 0.5f))
+            {
+                IsTargetInCone = true;
+                CurrentAngleOffset = bestAngle;
+                CurrentTargetDistance = bestDist;
+                IsBlockedByWall = bestBlocked;
+                IsLineOfSightClear = !bestBlocked;
             }
             else
             {
-                IsBlockedByWall = false;
+                IsTargetInCone = false;
                 IsLineOfSightClear = false;
+                IsBlockedByWall = false;
+                CurrentAngleOffset = 0f;
+                CurrentTargetDistance = 0f;
             }
+        }
+
+        private bool CheckSightlineBlocked(Vector3 lensPos, Vector3 targetPos, Transform targetTransform)
+        {
+            Vector3 targetCenter = targetPos + Vector3.up * 0.6f;
+            Vector3 rayDir = (targetCenter - lensPos).normalized;
+            float testDist = Vector3.Distance(lensPos, targetCenter);
+
+            RaycastHit[] hits = Physics.RaycastAll(lensPos, rayDir, testDist);
+            foreach (var hit in hits)
+            {
+                if (hit.collider.transform.IsChildOf(transform.root)) continue;
+                if (hit.collider.transform.IsChildOf(targetTransform)) continue;
+
+                if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall") || hit.collider.gameObject.name.Contains("Wall") || hit.collider.gameObject.name.Contains("Partition"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public PhotoEvaluation SnapPhoto(float coopSyncPercentage = 95f)
+        {
+            if (_isSnapping && Application.isPlaying) return default;
+            if (Application.isPlaying)
+            {
+                StartCoroutine(SnapRoutine());
+            }
+
+            PhotoEvaluation eval = new PhotoEvaluation();
+            eval.distance = CurrentTargetDistance;
+            eval.angleOffset = CurrentAngleOffset;
+            eval.syncScore = coopSyncPercentage;
+
+            // 1. Lighting check (Flash active within 0.5s)
+            if (!IsFlashActive)
+            {
+                eval.isNoLighting = true;
+                eval.verdict = "NO LIGHTING";
+                eval.details = "Flash inactive! P1 must activate flash first.";
+                eval.score = 0;
+                eval.stars = 0;
+                return eval;
+            }
+
+            // 2. View check
+            if (!IsTargetInCone || IsBlockedByWall || FocusedSubject == null)
+            {
+                eval.isFramed = false;
+                eval.isBlocked = IsBlockedByWall;
+                eval.verdict = "OUT OF VIEW";
+                eval.details = "Target out of camera view or blocked by wall.";
+                eval.score = 0;
+                eval.stars = 0;
+                return eval;
+            }
+
+            eval.isFramed = true;
+            eval.subjectType = FocusedSubject.Type;
+            eval.subjectId = FocusedSubject.SubjectId;
+            eval.subjectName = FocusedSubject.DisplayName;
+
+            // 3. Distance checks
+            if (CurrentTargetDistance < 1.4f)
+            {
+                eval.isTooClose = true;
+                eval.verdict = "TOO CLOSE";
+                eval.details = "Too close! Step back to frame the subject.";
+                eval.score = 0;
+                eval.stars = 0;
+                return eval;
+            }
+
+            if (CurrentTargetDistance > 6.0f)
+            {
+                eval.isTooFar = true;
+                eval.verdict = "TOO FAR";
+                eval.details = "Too far! Move closer for a clear view.";
+                eval.score = 0;
+                eval.stars = 0;
+                return eval;
+            }
+
+            // 4. Similarity check
+            if (WeddingGameManager.Instance != null &&
+                WeddingGameManager.Instance.CheckIsTooSimilar(FocusedSubject.Type, FocusedSubject.SubjectId, _lensTransform.position, _lensTransform.forward))
+            {
+                eval.isTooSimilar = true;
+                eval.verdict = "TOO SIMILAR";
+                eval.details = "Too similar to a prior shot! Change angle or position.";
+                eval.score = 0;
+                eval.stars = 0;
+                return eval;
+            }
+
+            // 5. Success!
+            float angleFactor = Mathf.Clamp01(1f - (CurrentAngleOffset / (_fovAngle * 0.5f)));
+            float distFactor = Mathf.Clamp01(1f - (Mathf.Abs(CurrentTargetDistance - 3.2f) / 3.0f));
+
+            int baseScore = 400;
+            int angleScore = Mathf.RoundToInt(angleFactor * 350f);
+            int distScore = Mathf.RoundToInt(distFactor * 250f);
+            eval.score = baseScore + angleScore + distScore;
+
+            if (eval.score >= 880)
+            {
+                eval.stars = 3;
+                eval.verdict = "GOOD"; // User requested: "just show if it is good, out of view, too far, too close or no lighting"
+            }
+            else if (eval.score >= 680)
+            {
+                eval.stars = 2;
+                eval.verdict = "GOOD";
+            }
+            else
+            {
+                eval.stars = 1;
+                eval.verdict = "GOOD";
+            }
+
+            eval.details = $"+{eval.score} pts  |  {FocusedSubject.DisplayName}";
+
+            // Record photo in WeddingGameManager
+            if (WeddingGameManager.Instance != null)
+            {
+                WeddingGameManager.Instance.RecordSuccessfulPhoto(
+                    FocusedSubject.Type,
+                    FocusedSubject.SubjectId,
+                    _lensTransform.position,
+                    _lensTransform.forward,
+                    eval.score);
+            }
+
+            return eval;
         }
 
         private void UpdateFrustumVisuals()
@@ -305,77 +502,6 @@ namespace CameraCoop
                 _frustumLineRenderer.startColor = borderCol;
                 _frustumLineRenderer.endColor = borderCol;
             }
-        }
-
-        public PhotoEvaluation SnapPhoto(float coopSyncPercentage = 95f)
-        {
-            if (_isSnapping && Application.isPlaying) return default;
-            if (Application.isPlaying)
-            {
-                StartCoroutine(SnapRoutine());
-            }
-
-            PhotoEvaluation eval = new PhotoEvaluation();
-            eval.distance = CurrentTargetDistance;
-            eval.angleOffset = CurrentAngleOffset;
-            eval.syncScore = coopSyncPercentage;
-
-            if (!IsTargetInCone)
-            {
-                eval.isFramed = false;
-                eval.isBlocked = false;
-                eval.score = 0;
-                eval.stars = 0;
-                eval.verdict = "MISSED! TARGET NOT IN FRAME";
-                eval.details = "Aim the camera cone towards the centerpiece!";
-            }
-            else if (IsBlockedByWall)
-            {
-                eval.isFramed = true;
-                eval.isBlocked = true;
-                eval.score = 150;
-                eval.stars = 0;
-                eval.verdict = "BLOCKED BY WALL!";
-                eval.details = "A gallery partition obstructed the lens line-of-sight.";
-            }
-            else
-            {
-                eval.isFramed = true;
-                eval.isBlocked = false;
-
-                // Angle accuracy: 0 deg = 1.0, halfFov = 0.0
-                float angleFactor = Mathf.Clamp01(1f - (CurrentAngleOffset / (_fovAngle * 0.5f)));
-
-                // Ideal focal distance: 3.5m
-                float distFactor = Mathf.Clamp01(1f - (Mathf.Abs(CurrentTargetDistance - 3.5f) / 3.5f));
-
-                int baseScore = 300;
-                int angleScore = Mathf.RoundToInt(angleFactor * 450f);
-                int distScore = Mathf.RoundToInt(distFactor * 250f);
-
-                eval.score = baseScore + angleScore + distScore;
-
-                if (eval.score >= 820)
-                {
-                    eval.stars = 3;
-                    eval.verdict = "PERFECT SHOT! [ * * * ]";
-                    eval.details = $"Bullseye framing (+{angleScore}) & prime focal distance (+{distScore})";
-                }
-                else if (eval.score >= 600)
-                {
-                    eval.stars = 2;
-                    eval.verdict = "GREAT SHOT! [ * * - ]";
-                    eval.details = $"Good framing (+{angleScore}) & clear sightline (+{distScore})";
-                }
-                else
-                {
-                    eval.stars = 1;
-                    eval.verdict = "FAIR SHOT! [ * - - ]";
-                    eval.details = $"On target (+{angleScore}), try centering closer to 3.5m";
-                }
-            }
-
-            return eval;
         }
 
         private IEnumerator SnapRoutine()

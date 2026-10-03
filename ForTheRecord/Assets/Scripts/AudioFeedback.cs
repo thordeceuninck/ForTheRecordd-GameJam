@@ -14,6 +14,8 @@ namespace CameraCoop
         private AudioClip _failBuzz;
         private AudioClip _alignTick;
         private AudioClip _cardSlideClip;
+        private AudioClip _bumpClip;
+        private AudioClip _flashChargeClip;
 
         private void Awake()
         {
@@ -39,6 +41,20 @@ namespace CameraCoop
             _failBuzz = CreateFailBuzzClip();
             _alignTick = CreateAlignTickClip();
             _cardSlideClip = CreateCardSlideClip();
+            _bumpClip = CreateBumpClip();
+            _flashChargeClip = CreateFlashChargeClip();
+        }
+
+        public void PlayBumpSound()
+        {
+            if (_audioSource != null && _bumpClip != null)
+                _audioSource.PlayOneShot(_bumpClip, 0.85f);
+        }
+
+        public void PlayFlashCharge()
+        {
+            if (_audioSource != null && _flashChargeClip != null)
+                _audioSource.PlayOneShot(_flashChargeClip, 0.75f);
         }
 
         public void PlayShutterClick()
@@ -245,6 +261,50 @@ namespace CameraCoop
             }
 
             AudioClip clip = AudioClip.Create("ProceduralCardSlide", numSamples, 1, sampleRate, false);
+            clip.SetData(samples, 0);
+            return clip;
+        }
+
+        private AudioClip CreateBumpClip()
+        {
+            int sampleRate = 44100;
+            float duration = 0.22f;
+            int numSamples = Mathf.CeilToInt(sampleRate * duration);
+            float[] samples = new float[numSamples];
+
+            for (int i = 0; i < numSamples; i++)
+            {
+                float t = (float)i / sampleRate;
+                // Hollow wooden/body thud + slight squeak/gasp tone
+                float lowThud = Mathf.Sin(2f * Mathf.PI * 85f * Mathf.Exp(-t * 20f) * t) * Mathf.Exp(-t * 18f);
+                float clatter = (Random.value * 2f - 1f) * Mathf.Exp(-t * 35f) * 0.4f;
+                float oof = Mathf.Sin(2f * Mathf.PI * 180f * t) * Mathf.Exp(-t * 25f) * 0.3f;
+                samples[i] = Mathf.Clamp(lowThud * 0.8f + clatter + oof, -1f, 1f);
+            }
+
+            AudioClip clip = AudioClip.Create("ProceduralBump", numSamples, 1, sampleRate, false);
+            clip.SetData(samples, 0);
+            return clip;
+        }
+
+        private AudioClip CreateFlashChargeClip()
+        {
+            int sampleRate = 44100;
+            float duration = 0.20f;
+            int numSamples = Mathf.CeilToInt(sampleRate * duration);
+            float[] samples = new float[numSamples];
+
+            for (int i = 0; i < numSamples; i++)
+            {
+                float t = (float)i / sampleRate;
+                // Rising electrical charge whine
+                float pitch = Mathf.Lerp(1200f, 3200f, t / duration);
+                float whine = Mathf.Sin(2f * Mathf.PI * pitch * t) * (0.25f + 0.35f * (t / duration));
+                float click = (t < 0.02f) ? Mathf.Sin(2f * Mathf.PI * 900f * t) * Mathf.Exp(-t * 150f) : 0f;
+                samples[i] = Mathf.Clamp(whine * 0.4f + click * 0.7f, -1f, 1f);
+            }
+
+            AudioClip clip = AudioClip.Create("ProceduralFlashCharge", numSamples, 1, sampleRate, false);
             clip.SetData(samples, 0);
             return clip;
         }

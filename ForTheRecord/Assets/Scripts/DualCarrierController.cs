@@ -161,16 +161,50 @@ namespace CameraCoop
         {
             if (CoOpInputManager.Instance == null) return;
 
-            if (CoOpInputManager.Instance.WasAnyActionPressed())
+            // If photo review card is open, any action dismisses it
+            if (PhotoReviewUI.Instance != null && PhotoReviewUI.Instance.IsReviewOpen)
             {
-                if (PhotoReviewUI.Instance != null && PhotoReviewUI.Instance.IsReviewOpen)
+                if (CoOpInputManager.Instance.WasAnyActionPressed())
                 {
                     PhotoReviewUI.Instance.DismissReview();
                 }
-                else
+                return;
+            }
+
+            // P1 activates flash (lasts 0.5s)
+            if (CoOpInputManager.Instance.WasP1ActionPressed())
+            {
+                if (_giantCamera != null)
                 {
-                    SnapPhoto();
+                    _giantCamera.ActivateFlash();
                 }
+            }
+
+            // P2 takes the photo
+            if (CoOpInputManager.Instance.WasP2ActionPressed())
+            {
+                SnapPhoto();
+            }
+        }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (hit.collider == null) return;
+
+            var bumpable = hit.collider.GetComponentInParent<BumpableTarget>();
+            if (bumpable != null)
+            {
+                Vector3 hitDir = hit.point - transform.position;
+                hitDir.y = 0.1f;
+                float speed = _characterController != null ? _characterController.velocity.magnitude : 2f;
+                bumpable.TryRegisterBump(hitDir, speed);
+            }
+
+            var rb = hit.collider.attachedRigidbody;
+            if (rb != null && !rb.isKinematic)
+            {
+                Vector3 pushDir = new Vector3(hit.moveDirection.x, 0.1f, hit.moveDirection.z);
+                rb.AddForce(pushDir * 6f, ForceMode.Impulse);
             }
         }
 

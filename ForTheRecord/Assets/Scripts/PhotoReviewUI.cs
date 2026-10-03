@@ -64,65 +64,20 @@ namespace CameraCoop
             IsReviewOpen = false;
         }
 
-        private void Update()
+        private void Start()
         {
-            UpdateLiveHUD();
+            // User requested: "also remove the top bar ui on the screen it is confusing."
+            if (_liveStatusText != null) _liveStatusText.gameObject.SetActive(false);
+            if (_liveStatusBackground != null) _liveStatusBackground.gameObject.SetActive(false);
+            if (_actionPromptPill != null) _actionPromptPill.SetActive(false);
         }
 
-        private void UpdateLiveHUD()
+        private void Update()
         {
-            if (IsReviewOpen)
-            {
-                if (_liveStatusText != null) _liveStatusText.gameObject.SetActive(false);
-                if (_liveStatusBackground != null) _liveStatusBackground.gameObject.SetActive(false);
-                if (_actionPromptPill != null) _actionPromptPill.SetActive(false);
-                return;
-            }
-
-            if (GiantCamera.Instance == null) return;
-
-            if (_liveStatusText != null) _liveStatusText.gameObject.SetActive(true);
-            if (_liveStatusBackground != null) _liveStatusBackground.gameObject.SetActive(true);
-
-            if (GiantCamera.Instance.IsLineOfSightClear)
-            {
-                if (_liveStatusText != null)
-                {
-                    _liveStatusText.text = ">>> TARGET FRAMED & IN SIGHT! PRESS [A] / SPACE TO SNAP! <<<";
-                    _liveStatusText.color = new Color(1f, 0.85f, 0.25f); // Vibrant gold
-                }
-                if (_liveStatusBackground != null)
-                {
-                    _liveStatusBackground.color = new Color(0.12f, 0.22f, 0.15f, 0.85f);
-                }
-                if (_actionPromptPill != null) _actionPromptPill.SetActive(true);
-            }
-            else if (GiantCamera.Instance.IsBlockedByWall)
-            {
-                if (_liveStatusText != null)
-                {
-                    _liveStatusText.text = "!! SIGHTLINE BLOCKED BY WALL! REPOSITION CAMERA! !!";
-                    _liveStatusText.color = new Color(1f, 0.35f, 0.3f); // Terracotta red
-                }
-                if (_liveStatusBackground != null)
-                {
-                    _liveStatusBackground.color = new Color(0.28f, 0.10f, 0.10f, 0.85f);
-                }
-                if (_actionPromptPill != null) _actionPromptPill.SetActive(false);
-            }
-            else
-            {
-                if (_liveStatusText != null)
-                {
-                    _liveStatusText.text = "COORDINATE MOVEMENT TO AIM AT CENTERPIECE EXHIBIT";
-                    _liveStatusText.color = new Color(0.9f, 0.86f, 0.78f); // Ivory
-                }
-                if (_liveStatusBackground != null)
-                {
-                    _liveStatusBackground.color = new Color(0.15f, 0.13f, 0.12f, 0.75f);
-                }
-                if (_actionPromptPill != null) _actionPromptPill.SetActive(false);
-            }
+            // Keep top bar hidden
+            if (_liveStatusText != null && _liveStatusText.gameObject.activeSelf) _liveStatusText.gameObject.SetActive(false);
+            if (_liveStatusBackground != null && _liveStatusBackground.gameObject.activeSelf) _liveStatusBackground.gameObject.SetActive(false);
+            if (_actionPromptPill != null && _actionPromptPill.activeSelf) _actionPromptPill.SetActive(false);
         }
 
         public void TriggerScreenFlash()
@@ -168,41 +123,50 @@ namespace CameraCoop
 
             if (_cardTitleText != null)
             {
-                _cardTitleText.text = $"POLAROID EXPOSURE #{_snapshotCount:D2}";
+                _cardTitleText.text = $"PHOTO #{_snapshotCount:D2}";
             }
 
+            // Clean, simplified verdict as requested:
+            // "just show if it is good, out of view, too far, too close or no lighting"
             if (_verdictText != null)
             {
                 _verdictText.text = eval.verdict;
-                if (eval.stars == 3) _verdictText.color = new Color(0.25f, 0.75f, 0.35f);
-                else if (eval.stars >= 1) _verdictText.color = new Color(0.9f, 0.7f, 0.15f);
-                else _verdictText.color = new Color(0.85f, 0.25f, 0.25f);
+                if (eval.verdict == "GOOD")
+                {
+                    _verdictText.color = new Color(0.2f, 0.85f, 0.35f);
+                }
+                else
+                {
+                    _verdictText.color = new Color(0.95f, 0.3f, 0.25f);
+                }
             }
 
             if (_starsText != null)
             {
-                _starsText.text = eval.stars switch
-                {
-                    3 => "[ * * * ]  PERFECT!",
-                    2 => "[ * * - ]  GREAT!",
-                    1 => "[ * - - ]  FAIR",
-                    _ => "[ - - - ]  MISS"
-                };
+                _starsText.text = eval.verdict == "GOOD" ? "[ * * * ]" : "[ - - - ]";
             }
 
             if (_detailsText != null)
             {
-                _detailsText.text = $"{eval.details}\nScore: {eval.score} pts  |  Dist: {eval.distance:F1}m  |  Angle: {eval.angleOffset:F0}°";
+                if (eval.verdict == "GOOD")
+                {
+                    _detailsText.text = $"+{eval.score} PTS  |  {eval.subjectName}";
+                }
+                else
+                {
+                    _detailsText.text = eval.details;
+                }
             }
 
+            // Remove clutter metadata
             if (_metadataText != null)
             {
-                _metadataText.text = $"f/2.8   1/250s   ISO 100   CO-OP SYNC: {eval.syncScore:F0}%";
+                _metadataText.gameObject.SetActive(false);
             }
 
             if (_dismissPromptText != null)
             {
-                _dismissPromptText.text = "Press [A] on Gamepad or Space/Enter to Continue";
+                _dismissPromptText.text = "Press [A] to Continue";
             }
 
             if (_cardAnimCoroutine != null) StopCoroutine(_cardAnimCoroutine);

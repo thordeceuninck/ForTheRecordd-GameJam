@@ -191,6 +191,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &9774301
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -396,7 +399,7 @@ RectTransform:
   m_GameObject: {fileID: 19252225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 622143041}
@@ -823,8 +826,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -924,7 +927,7 @@ Transform:
   m_GameObject: {fileID: 81628231}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.8, y: 0, z: -2.2}
+  m_LocalPosition: {x: -6.1, y: 0, z: -7.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -966,6 +969,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &81628235
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4593,7 +4599,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4283224575
   m_fontColor: {r: 1, g: 0.82, b: 0.3, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4606,7 +4612,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -4781,7 +4787,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294111986
   m_fontColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4794,7 +4800,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -5792,8 +5798,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5936,6 +5942,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &774273179
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7303,7 +7312,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &894649055
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8031,7 +8040,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4279507487
   m_fontColor: {r: 0.12, g: 0.1, b: 0.08, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -8044,7 +8053,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -8221,7 +8230,7 @@ Transform:
   m_GameObject: {fileID: 1023456606}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3, y: 0, z: 2.8}
+  m_LocalPosition: {x: 2.96, y: 0, z: 3.43}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8263,6 +8272,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &1023456610
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8797,8 +8809,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -9398,6 +9410,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &1209661421
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10699,6 +10714,7 @@ GameObject:
   - component: {fileID: 1356390191}
   - component: {fileID: 1356390190}
   - component: {fileID: 1356390189}
+  - component: {fileID: 1356390193}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -10796,6 +10812,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1356390193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356390188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1 &1357932595
 GameObject:
   m_ObjectHideFlags: 0
@@ -11793,7 +11853,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -30, y: -30}
-  m_SizeDelta: {x: 420, y: 130}
+  m_SizeDelta: {x: 420, y: 220}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1467508311
 MonoBehaviour:
@@ -11866,7 +11926,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1471283227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12406,7 +12466,8 @@ MonoBehaviour:
   _targetGuests: 3
   _targetBride: 2
   _targetChampagne: 1
-  _gameDuration: 60
+  _gameDuration: 80
+  _bumpPenalty: 500
 --- !u!4 &1504141408
 Transform:
   m_ObjectHideFlags: 0
@@ -13245,7 +13306,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 18, y: -50}
+  m_AnchoredPosition: {x: 18, y: -138.5}
   m_SizeDelta: {x: -36, y: 32}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1635787918
@@ -13319,6 +13380,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &1635787922
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -13714,7 +13778,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -15101,7 +15165,7 @@ Transform:
   m_GameObject: {fileID: 1778937106}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5, y: 0, z: 1.8}
+  m_LocalPosition: {x: -7.16, y: 0, z: 1.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15144,6 +15208,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &1778937110
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -15344,9 +15411,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<b>P1 (Left):</b> WASD / Left Stick \u2014 <b>[A] / Space:</b> Flash (0.5s) 
-    |  <b>P2 (Right):</b> Arrows / Right Stick \u2014 <b>[A] / Enter:</b> Snap Photo 
-    |  <b>Avoid Bumps (-1 pt)</b>"
+  m_text: <b>P1 (Left):</b> WASD / Left Stick \r\n <b>[A] / Space:</b> Flash (0.5s) 
+    \r\n<b>P2 (Right):</b> Arrows / Right Stick\r\n<b>[A] / Enter:</b> Snap Photo 
+    | <b>Avoid Bumps (-1 pt)</b>
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -15373,8 +15440,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
@@ -15654,6 +15721,9 @@ MonoBehaviour:
   _impactForceMultiplier: 4
   _stabilizeUpright: 1
   _uprightTorque: 12
+  _isNPC: 1
+  _standUpDelay: 10
+  _standUpDuration: 0.8
 --- !u!54 &1858348440
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -15769,8 +15839,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -16389,7 +16459,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 30, y: -30}
-  m_SizeDelta: {x: 360, y: 210}
+  m_SizeDelta: {x: 500, y: 220}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1928361860
 MonoBehaviour:
@@ -16593,7 +16663,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 30, y: 30}
-  m_SizeDelta: {x: 460, y: 130}
+  m_SizeDelta: {x: 583, y: 130}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1978246628
 MonoBehaviour:
@@ -16979,7 +17049,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4290759897
   m_fontColor: {r: 0.85, g: 0.8, b: 0.75, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -16992,7 +17062,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -17134,8 +17204,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 58
+  m_fontSizeBase: 58
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -17359,8 +17429,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
