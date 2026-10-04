@@ -138,25 +138,88 @@ namespace CameraCoop
         private AudioClip CreateFlashPopClip()
         {
             int sampleRate = 44100;
-            float duration = 0.28f;
+            float duration = 0.32f;
             int numSamples = Mathf.CeilToInt(sampleRate * duration);
             float[] samples = new float[numSamples];
+
+            // Slightly more "vintage" / physical sounding flash
+            float phase = 0f;
 
             for (int i = 0; i < numSamples; i++)
             {
                 float t = (float)i / sampleRate;
-                // Explosive low burst + sizzling noise decay
-                float pop = Mathf.Exp(-t * 40f) * Mathf.Sin(2f * Mathf.PI * 120f * Mathf.Exp(-t * 15f) * t);
-                float sizzle = (Random.value * 2f - 1f) * Mathf.Exp(-t * 18f) * 0.5f;
 
-                // High tone sizzle
-                float highHiss = Mathf.Sin(2f * Mathf.PI * 4500f * t) * Mathf.Exp(-t * 30f) * 0.15f;
+                // ---------------------------------------------------------
+                // 1. Low mechanical/electrical THUMP
+                // ---------------------------------------------------------
+                float thumpEnvelope = Mathf.Exp(-t * 32f);
 
-                samples[i] = Mathf.Clamp(pop * 0.7f + sizzle + highHiss, -1f, 1f);
+                // Frequency drops quickly: gives it a chunky "POW"
+                float thumpFreq = Mathf.Lerp(115f, 55f, t / duration);
+                phase += 2f * Mathf.PI * thumpFreq / sampleRate;
+
+                float thump = Mathf.Sin(phase) * thumpEnvelope * 0.75f;
+
+                // Extra very-low transient
+                float lowBoom =
+                    Mathf.Sin(2f * Mathf.PI * 75f * t) *
+                    Mathf.Exp(-t * 42f) *
+                    0.35f;
+
+                // ---------------------------------------------------------
+                // 2. Old flash electrical CRACKLE
+                // ---------------------------------------------------------
+                float crackleNoise = (Random.value * 2f - 1f);
+
+                // Strong at the beginning, then rapidly disappears
+                float crackleEnvelope = Mathf.Exp(-t * 24f);
+
+                float crackle = crackleNoise * crackleEnvelope * 0.30f;
+
+                // Give the crackle some chunky low-mid character
+                float crackleBody =
+                    Mathf.Sin(2f * Mathf.PI * 650f * t) *
+                    Mathf.Exp(-t * 18f) *
+                    0.12f;
+
+               
+
+                // ---------------------------------------------------------
+                // 4. Small click at the initial ignition
+                // ---------------------------------------------------------
+                float clickEnvelope = Mathf.Exp(-t * 180f);
+
+                float click =
+                    (Random.value * 2f - 1f) *
+                    clickEnvelope *
+                    0.18f;
+
+                // ---------------------------------------------------------
+                // Mix
+                // ---------------------------------------------------------
+                float output =
+                    thump +
+                    lowBoom +
+                    crackle +
+                    crackleBody +
+                    click;
+
+                // Gentle saturation / limiting
+                output = Mathf.Tan(output * 1.4f);
+
+                samples[i] = output;
             }
 
-            AudioClip clip = AudioClip.Create("ProceduralFlash", numSamples, 1, sampleRate, false);
+            AudioClip clip = AudioClip.Create(
+                "VintageCameraFlash",
+                numSamples,
+                1,
+                sampleRate,
+                false
+            );
+
             clip.SetData(samples, 0);
+
             return clip;
         }
 
@@ -290,22 +353,71 @@ namespace CameraCoop
         private AudioClip CreateFlashChargeClip()
         {
             int sampleRate = 44100;
-            float duration = 0.20f;
+            float duration = 0.32f;
             int numSamples = Mathf.CeilToInt(sampleRate * duration);
             float[] samples = new float[numSamples];
+
+            // Slightly more "vintage" / physical sounding flash
+            float phase = 0f;
 
             for (int i = 0; i < numSamples; i++)
             {
                 float t = (float)i / sampleRate;
-                // Rising electrical charge whine
-                float pitch = Mathf.Lerp(1200f, 3200f, t / duration);
-                float whine = Mathf.Sin(2f * Mathf.PI * pitch * t) * (0.25f + 0.35f * (t / duration));
-                float click = (t < 0.02f) ? Mathf.Sin(2f * Mathf.PI * 900f * t) * Mathf.Exp(-t * 150f) : 0f;
-                samples[i] = Mathf.Clamp(whine * 0.4f + click * 0.7f, -1f, 1f);
+
+                
+                // ---------------------------------------------------------
+                // 2. Old flash electrical CRACKLE
+                // ---------------------------------------------------------
+                float crackleNoise = (Random.value * 2f - 1f);
+
+                // Strong at the beginning, then rapidly disappears
+                float crackleEnvelope = Mathf.Exp(-t * 24f);
+
+                float crackle = crackleNoise * crackleEnvelope * 0.30f;
+
+                // Give the crackle some chunky low-mid character
+                float crackleBody =
+                    Mathf.Sin(2f * Mathf.PI * 650f * t) *
+                    Mathf.Exp(-t * 18f) *
+                    0.12f;
+
+
+
+                // ---------------------------------------------------------
+                // 4. Small click at the initial ignition
+                // ---------------------------------------------------------
+                float clickEnvelope = Mathf.Exp(-t * 180f);
+
+                float click =
+                    (Random.value * 2f - 1f) *
+                    clickEnvelope *
+                    0.18f;
+
+                // ---------------------------------------------------------
+                // Mix
+                // ---------------------------------------------------------
+                float output =
+                     
+                     
+                    crackle 
+                    ;
+
+                // Gentle saturation / limiting
+                output = Mathf.Tan(output * 1.4f);
+
+                samples[i] = output;
             }
 
-            AudioClip clip = AudioClip.Create("ProceduralFlashCharge", numSamples, 1, sampleRate, false);
+            AudioClip clip = AudioClip.Create(
+                "VintageCameraFlash",
+                numSamples,
+                1,
+                sampleRate,
+                false
+            );
+
             clip.SetData(samples, 0);
+
             return clip;
         }
     }

@@ -9,31 +9,52 @@ namespace CameraCoop
     {
         public static WeddingGameManager Instance { get; private set; }
 
-        [Header("Mission Requirements")]
+        [Header("Mission Requirements - Reception")]
         [SerializeField] private int _targetFood = 2;
         [SerializeField] private int _targetGuests = 3;
         [SerializeField] private int _targetBride = 2;
         [SerializeField] private int _targetChampagne = 1;
 
-        [Header("Match Settings")]
-        [SerializeField] private float _gameDuration = 60f;
+        [Header("Mission Requirements - Garden")]
+        [SerializeField] private int _targetSomethingRed = 1;
+        [SerializeField] private int _targetMusicBand = 2;
+        [SerializeField] private int _targetPicnic = 1;
+        [SerializeField] private int _targetTiger = 2;
 
-        // Current Mission Progress
+        [Header("Match Settings")]
+        [SerializeField] private float _gameDuration = 90f;
+
+        // Current Mission Progress - Reception
         public int FoodCount { get; private set; } = 0;
         public int GuestCount { get; private set; } = 0;
         public int BrideCount { get; private set; } = 0;
         public int ChampagneCount { get; private set; } = 0;
+
+        // Current Mission Progress - Garden
+        public int SomethingRedCount { get; private set; } = 0;
+        public int MusicBandCount { get; private set; } = 0;
+        public int PicnicCount { get; private set; } = 0;
+        public int TigerCount { get; private set; } = 0;
 
         public int TargetFood => _targetFood;
         public int TargetGuests => _targetGuests;
         public int TargetBride => _targetBride;
         public int TargetChampagne => _targetChampagne;
 
+        public int TargetSomethingRed => _targetSomethingRed;
+        public int TargetMusicBand => _targetMusicBand;
+        public int TargetPicnic => _targetPicnic;
+        public int TargetTiger => _targetTiger;
+
         public int TotalMissionsCompleted =>
             (FoodCount >= _targetFood ? 1 : 0) +
             (GuestCount >= _targetGuests ? 1 : 0) +
             (BrideCount >= _targetBride ? 1 : 0) +
-            (ChampagneCount >= _targetChampagne ? 1 : 0);
+            (ChampagneCount >= _targetChampagne ? 1 : 0) +
+            (SomethingRedCount >= _targetSomethingRed ? 1 : 0) +
+            (MusicBandCount >= _targetMusicBand ? 1 : 0) +
+            (PicnicCount >= _targetPicnic ? 1 : 0) +
+            (TigerCount >= _targetTiger ? 1 : 0);
 
         // Scoring & Penalties
         [Header("Scoring & Penalties")]
@@ -115,6 +136,18 @@ namespace CameraCoop
                         continue;
                     }
 
+                    if (type == SubjectType.MusicBand && rec.subjectId != subjectId)
+                    {
+                        // Different band member is not similar
+                        continue;
+                    }
+
+                    if (type == SubjectType.SomethingRed && rec.subjectId != subjectId)
+                    {
+                        // Different red subject is not similar
+                        continue;
+                    }
+
                     float dist = Vector3.Distance(rec.cameraPosition, camPos);
                     float angle = Vector3.Angle(rec.cameraForward, camForward);
 
@@ -171,6 +204,38 @@ namespace CameraCoop
                     if (ChampagneCount < _targetChampagne)
                     {
                         ChampagneCount++;
+                        acceptedForMission = true;
+                    }
+                    break;
+
+                case SubjectType.SomethingRed:
+                    if (SomethingRedCount < _targetSomethingRed)
+                    {
+                        SomethingRedCount++;
+                        acceptedForMission = true;
+                    }
+                    break;
+
+                case SubjectType.MusicBand:
+                    if (MusicBandCount < _targetMusicBand)
+                    {
+                        MusicBandCount++;
+                        acceptedForMission = true;
+                    }
+                    break;
+
+                case SubjectType.PicnicPlace:
+                    if (PicnicCount < _targetPicnic)
+                    {
+                        PicnicCount++;
+                        acceptedForMission = true;
+                    }
+                    break;
+
+                case SubjectType.Tiger:
+                    if (TigerCount < _targetTiger)
+                    {
+                        TigerCount++;
                         acceptedForMission = true;
                     }
                     break;

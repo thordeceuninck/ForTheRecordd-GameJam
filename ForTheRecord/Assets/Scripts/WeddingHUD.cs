@@ -15,6 +15,10 @@ namespace CameraCoop
         [SerializeField] private TextMeshProUGUI _guestsItemText;
         [SerializeField] private TextMeshProUGUI _brideItemText;
         [SerializeField] private TextMeshProUGUI _champagneItemText;
+        [SerializeField] private TextMeshProUGUI _redItemText;
+        [SerializeField] private TextMeshProUGUI _bandItemText;
+        [SerializeField] private TextMeshProUGUI _picnicItemText;
+        [SerializeField] private TextMeshProUGUI _tigerItemText;
 
         [Header("Status & Timer Bar")]
         [SerializeField] private TextMeshProUGUI _timerText;
@@ -123,6 +127,11 @@ namespace CameraCoop
             UpdateTodoLine(_brideItemText, "bride dancing", gm.BrideCount, gm.TargetBride);
             UpdateTodoLine(_champagneItemText, "champagne", gm.ChampagneCount, gm.TargetChampagne);
 
+            UpdateTodoLine(_redItemText, "find something red", gm.SomethingRedCount, gm.TargetSomethingRed);
+            UpdateTodoLine(_bandItemText, "music band", gm.MusicBandCount, gm.TargetMusicBand);
+            UpdateTodoLine(_picnicItemText, "picknickplace", gm.PicnicCount, gm.TargetPicnic);
+            UpdateTodoLine(_tigerItemText, "tiger", gm.TigerCount, gm.TargetTiger);
+
             // Net score
             if (_scoreText != null)
             {
@@ -134,9 +143,9 @@ namespace CameraCoop
         {
             if (label == null) return;
             bool done = current >= target;
-            string check = done ? "<color=#52D372>[✓]</color>" : "<color=#D4C8B5>[  ]</color>";
+            
             string colorHex = done ? "#52D372" : "#F6EEDF";
-            label.text = $"{check} <color={colorHex}>{current}/{target} {taskName}</color>";
+            label.text = $"<color={colorHex}>{current}/{target} {taskName}</color>";
         }
 
         private void ShowGameOver()
@@ -163,8 +172,12 @@ namespace CameraCoop
                     $"Food: {gm.FoodCount}/{gm.TargetFood}\n" +
                     $"Different Guests: {gm.GuestCount}/{gm.TargetGuests}\n" +
                     $"Bride Dancing: {gm.BrideCount}/{gm.TargetBride}\n" +
-                    $"Champagne: {gm.ChampagneCount}/{gm.TargetChampagne}\n\n" +
-                    $"<b>Missions Finished: {gm.TotalMissionsCompleted}/4</b>";
+                    $"Champagne: {gm.ChampagneCount}/{gm.TargetChampagne}\n" +
+                    $"Something Red: {gm.SomethingRedCount}/{gm.TargetSomethingRed}\n" +
+                    $"Music Band: {gm.MusicBandCount}/{gm.TargetMusicBand}\n" +
+                    $"Picnic Place: {gm.PicnicCount}/{gm.TargetPicnic}\n" +
+                    $"Tiger: {gm.TigerCount}/{gm.TargetTiger}\n\n" +
+                    $"<b>Missions Finished: {gm.TotalMissionsCompleted}/8</b>";
             }
         }
 

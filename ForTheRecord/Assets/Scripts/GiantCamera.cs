@@ -287,18 +287,16 @@ namespace CameraCoop
 
         public PhotoEvaluation SnapPhoto(float coopSyncPercentage = 95f)
         {
-            if (_isSnapping && Application.isPlaying) return default;
-            if (Application.isPlaying)
-            {
-                StartCoroutine(SnapRoutine());
-            }
+            if (_isSnapping && Application.isPlaying)
+                return default;
 
             PhotoEvaluation eval = new PhotoEvaluation();
+
             eval.distance = CurrentTargetDistance;
             eval.angleOffset = CurrentAngleOffset;
             eval.syncScore = coopSyncPercentage;
 
-            // 1. Lighting check (Flash active within 0.5s)
+            // 1. Lighting check
             if (!IsFlashActive)
             {
                 eval.isNoLighting = true;
@@ -307,6 +305,12 @@ namespace CameraCoop
                 eval.score = 0;
                 eval.stars = 0;
                 return eval;
+            }
+
+            // Only start the camera animation after the flash requirement is satisfied.
+            if (Application.isPlaying)
+            {
+                StartCoroutine(SnapRoutine());
             }
 
             // 2. View check

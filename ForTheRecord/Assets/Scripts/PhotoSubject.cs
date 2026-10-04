@@ -8,7 +8,11 @@ namespace CameraCoop
         Food,
         Guest,
         Bride,
-        Champagne
+        Champagne,
+        SomethingRed,
+        MusicBand,
+        PicnicPlace,
+        Tiger
     }
 
     public class PhotoSubject : MonoBehaviour
